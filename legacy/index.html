@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>This is slerpy</title>
+
+		<meta name="viewport" content="width=device-width">
+		<meta charset="utf-8">
+
+		<link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+		<link href="assets/favicon.png" rel="icon">
+
+		<script id="vsh" type="x-shader/x-vertex">
+			precision mediump float;
+			attribute vec3 pos;
+			varying vec2 uv;
+			void main(void){uv=pos.xy;gl_Position=vec4(pos,1);}
+		</script>
+
+		<script id="fsh" type="x-shader/x-fragment">
+			precision mediump float;
+			uniform float time;
+			uniform float aspect;
+			uniform vec2 mouse;
+			varying vec2 uv;
+			mat2 rm;
+			mat2 rot(float a){float s=sin(a),c=cos(a);return mat2(s,c,-c,s);}
+			float cube(vec3 p){return length(max(abs(p)-.5,0.));}
+			float map(vec3 p){
+				float d=cube(p);
+				rm=rot(-time/3.+length(p));p.xy*=rm;p.zy*=rm;
+				p=abs(p)-time;p=abs(p-floor(p+.5));
+				rm=rot(time);p.xy*=rm;p.xz*=rm;
+				return min(d,min(min(length(p.xy),
+				length(p.yz)),length(p.xz))+.01);
+			}
+			void main(void){
+				vec2 u=uv*vec2(aspect,1),off=.6*atan(mouse-.5);
+				vec3 p,rd=normalize(vec3(u-.5*off,1)),ro=vec3(off,-2);
+				rm=rot(time/4.);rd.xz*=rm;ro.xz*=rm;
+				rm=rot(time/2.);rd.yz*=rm;ro.yz*=rm;
+				float m,b,t=.0,f=1.-exp(-.08*time-.1);
+				for(int i=0; i<20; i++)if(t+=0.45*f*(m=map(p=ro+rd*t)),
+				m<.01)break;b=cube(p)-m;
+				gl_FragColor=vec4(f*vec3(1.-b*b,exp(-t),exp(-t/2.)),1);
+			}
+		</script>
+
+		<script type="text/javascript" src="assets/gl-matrix-min.js"></script>
+		<script type="text/javascript" src="assets/webgl-code.js"></script>
+
+		<style>
+			html,body {
+				margin: 0;
+				padding: 0;
+				background-color: #222;
+				min-width: 200px;
+			}
+
+			html {
+				scroll-behavior: smooth;
+			}
+
+			#gallery {
+				display: flex;
+				flex-wrap: wrap;
+				align-content: flex;
+				justify-content: center;
+				text-align: center;
+				margin: 0 1vw;
+			}
+
+			.exhibit {
+				flex-grow: 60;
+				background-color: #444;
+				margin: 10px;
+				transition: all 1s ease-in-out;
+			}
+
+			.exhibit img {
+				height: 40vh;
+				min-width: 100%;
+				object-fit: cover;
+				vertical-align: bottom;
+			}
+
+			.exhibit:hover {
+				flex-grow: 100;
+				transition: all 1s ease-in-out;
+			}
+
+			.exhibit p {
+				margin: 3px;
+			}
+
+			h1 {
+				font-size: 160px;
+			}
+
+			h2 {
+				font-size: 40px;
+			}
+
+			a,p,h1,h2 {
+				margin-top: 0px;
+				margin-bottom: 0px;
+				text-align: justify;
+				font-family: 'Roboto', sans-serif;
+				color: #FFFFFF;
+			}
+
+			.title-card {
+				position: relative;
+				overflow: hidden;
+				text-shadow: 0 0 32px #00000080;
+			}
+
+			.title-card a {
+				font-size: 20px;
+				margin-right: 10px;
+				text-decoration: underline;
+			}
+
+			.title-card a:hover {
+				text-decoration: none;
+			}
+
+			.title-card p,h2 {
+				margin-bottom: 20px;
+			}
+
+			.bg {
+				z-index: -100;
+				vertical-align: bottom;
+				height: 100vh;
+			}
+
+			#bg-live {
+				width: 100%;
+			}
+
+			#bg-still {
+				min-width: 100%;
+				display: none;
+			}
+
+			.wrapper {
+				margin: 32px auto;
+				width: 38em;
+			}
+
+			.fg {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+			}
+
+			@media screen and (max-width: 800px) {
+				#bg-still { display: initial; }
+				#bg-live { display: none; }
+				.gallery { display:block }
+				.exhibit img {
+					object-fit: contain;
+					width: 100%;
+					height: auto;
+				}
+				.wrapper {
+					width: 75%;
+				}
+				.title-card h2 {
+					font-size: 5vw;
+				}
+				.title-card h1 {
+					font-size: 20vw;
+				}
+			}
+		</style>
+	</head>
+
+	<body onload="setupWebGL();">
+		<div class="title-card">
+			<img src="assets/preview.png" class="bg" id="bg-still">
+			<canvas class="bg" id="bg-live"></canvas>
+			<div class="fg">
+				<div class="wrapper" >
+					<h1>slerpy</h1>
+					<h2>/'sləːpi/ (always lowercase)</h2>
+					<p>he/him • coder • shader artist • student at Saarland University</p>
+					<p>If you're reading this, you've found my official website for anything demoscene related. The links below bring you to my social media and some of the things I've worked on. In case you want to contact me, you can do so on IRCnet or Twitter.</p>
+					<a href="https://demozoo.org/sceners/79080/">Demozoo</a>
+					<a href="https://www.pouet.net/user.php?who=101602">Pouët</a>
+					<a href="https://www.shadertoy.com/user/slerpy">Shadertoy</a>
+					<a href="https://github.com/slerpyyy">Github</a>
+					<a href="https://twitter.com/slerpy_">Twitter</a>
+					<a href="#gallery">Gallery</a>
+				</div>
+			</div>
+		</div>
+
+		<div id="gallery">
+			<div class="exhibit">
+				<a href="https://graphics.cg.uni-saarland.de/courses/cg1-2020/RC/Bies/">
+					<img src="assets/gallery/ra.png" loading=lazy>
+				</a>
+				<p class="text">Rise Again</p>
+			</div>
+
+			<div class="exhibit">
+				<a href="https://twitter.com/slerpy_/status/1289967401665208325">
+					<img src="assets/gallery/bly.png" loading=lazy>
+				</a>
+				<p class="text">Bless you</p>
+			</div>
+
+			<div class="exhibit">
+				<a href="https://twitter.com/slerpy_/status/1274671699263459330">
+					<img src="https://media.demozoo.org/screens/o/26/e0/a3e5.272155.png" loading=lazy>
+				</a>
+				<p class="text">Convergence (4k exegfx)</p>
+			</div>
+
+			<div class="exhibit">
+				<a href="https://twitter.com/slerpy_/status/1264531348271890433">
+					<img src="assets/gallery/eco.png" loading=lazy>
+				</a>
+				<p class="text">Every 18-Bit Color Once</p>
+			</div>
+
+			<div class="exhibit">
+				<a href="https://twitter.com/slerpy_/status/1254562117312790529">
+					<img src="assets/gallery/mips-sp.png" loading=lazy>
+				</a>
+				<p class="text">Sierpinski in MIPS</p>
+			</div>
+
+			<div class="exhibit">
+				<a href="https://twitter.com/slerpy_/status/1254463177775071235">
+					<img src="assets/gallery/mips-dr.png" loading=lazy>
+				</a>
+				<p class="text">Dragon Curve in MIPS</p>
+			</div>
+
+			<div class="exhibit">
+				<a href="https://twitter.com/slerpy_/status/1251149376132530187">
+					<img src="assets/gallery/tbyk-swb.png" loading=lazy>
+				</a>
+				<p class="text">Recursive Spider Web (つぶやきGLSL)</p>
+			</div>
+
+			<div class="exhibit">
+				<a href="https://twitter.com/slerpy_/status/1251129168974303237">
+					<img src="assets/gallery/tbyk-fbs.png" loading=lazy>
+				</a>
+				<p class="text">Feedback Smoke (つぶやきGLSL)</p>
+			</div>
+
+			<div class="exhibit">
+				<a href="https://twitter.com/slerpy_/status/1250763923692888067">
+					<img src="assets/gallery/tbyk-r.png" loading=lazy>
+				</a>
+				<p class="text">Rings (つぶやきGLSL)</p>
+			</div>
+
+			<div class="exhibit">
+				<a href="https://www.pouet.net/prod.php?which=85220">
+					<img src="https://media.demozoo.org/screens/o/8c/d2/2e7f.271017.png" loading=lazy>
+				</a>
+				<p class="text">Wackelkontakt (4k intro)</p>
+			</div>
+
+			<div class="exhibit">
+				<a href="https://www.pouet.net/prod.php?which=82612">
+					<img src="assets/gallery/GR.png" loading=lazy>
+				</a>
+				<p class="text">Glitch Rider (4k intro)</p>
+			</div>
+
+			<div class="exhibit">
+				<a href="https://www.pouet.net/prod.php?which=81613">
+					<img src="https://media.demozoo.org/screens/o/79/7d/a22f.192111.png" loading=lazy>
+				</a>
+				<p class="text">Kill the Encoder (4k intro)</p>
+			</div>
+
+			<div class="exhibit">
+				<a href="https://www.pouet.net/prod.php?which=81023">
+					<img src="https://media.demozoo.org/screens/o/b7/38/e4a8.192112.png" loading=lazy>
+				</a>
+				<p class="text">The Endless Fall (256b intro)</p>
+			</div>
+
+			<div class="exhibit">
+				<a href="https://www.shadertoy.com/view/tdGGR1">
+					<img src="assets/gallery/Wp.png" loading=lazy>
+				</a>
+				<p class="text">New Wallpaper</p>
+			</div>
+
+			<div class="exhibit">
+				<a href="https://www.pouet.net/prod.php?which=79661">
+					<img src="https://media.demozoo.org/screens/o/74/6d/2fb9.176725.jpg" loading=lazy>
+				</a>
+				<p class="text">Think Outside the Box (4k intro)</p>
+			</div>
+
+			<div class="exhibit">
+				<a href="https://www.pouet.net/prod.php?which=76610">
+					<img src="assets/gallery/SftM.png" loading=lazy>
+				</a>
+				<p class="text">Shoot for the Moon (4k intro)</p>
+			</div>
+
+			<div class="exhibit">
+				<a href="https://www.shadertoy.com/view/lsVczG">
+					<img src="assets/gallery/anim.png" loading=lazy>
+				</a>
+				<p class="text">Path Tracing Experiment 3</p>
+			</div>
+
+			<div class="exhibit">
+				<a href="https://www.shadertoy.com/view/llBfWG">
+					<img src="assets/gallery/atpt.png" loading=lazy>
+				</a>
+				<p class="text">Path Tracing Experiment 2</p>
+			</div>
+
+			<div class="exhibit">
+				<a href="https://www.shadertoy.com/view/lsVczG">
+					<img src="assets/gallery/mslspt.png" loading=lazy>
+				</a>
+				<p class="text">Path Tracing Experiment 1</p>
+			</div>
+
+			<div class="exhibit">
+				<a href="https://www.shadertoy.com/view/MddcDS">
+					<img src="assets/gallery/inw.png" loading=lazy>
+				</a>
+				<p class="text">Ink in Water</p>
+			</div>
+		</div>
+	</body>
+</html>
