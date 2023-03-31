@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+        <title>Rise Again</title>
+        <!-- Favicon-->
+        <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+        <!-- Font Awesome icons (free version)-->
+        <script src="https://use.fontawesome.com/releases/v5.15.1/js/all.js" crossorigin="anonymous"></script>
+        <!-- Google fonts-->
+        <link href="https://fonts.googleapis.com/css?family=Merriweather+Sans:400,700" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css?family=Merriweather:400,300,300italic,400italic,700,700italic" rel="stylesheet" type="text/css" />
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link href="css/styles.css" rel="stylesheet" />
+        <!-- Add smooth scrolling-->
+        <style> html { scroll-behavior: smooth; } </style>
+    </head>
+
+    <body id="page-top">
+        <!-- Navigation-->
+        <nav class="navbar navbar-expand-lg navbar-light fixed-top py-3" id="mainNav">
+            <div class="container">
+                <a class="navbar-brand js-scroll-trigger" href="#page-top">Rise Again</a>
+                <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarResponsive">
+                    <ul class="navbar-nav ml-auto my-2 my-lg-0">
+                        <li class="nav-item"><a class="nav-link js-scroll-trigger" href="#downloads">Downloads</a></li>
+                        <li class="nav-item"><a class="nav-link js-scroll-trigger" href="#implementation">Implementation</a></li>
+                        <li class="nav-item"><a class="nav-link js-scroll-trigger" href="#inspiration">Inspiration</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Masthead-->
+        <header class="masthead">
+            <div class="container h-100">
+                <div class="row h-100 align-items-center justify-content-center text-center">
+                    <div class="col-lg-10 align-self-end">
+                        <h1 class="text-uppercase text-white font-weight-bold">Rise Again</h1>
+                        <hr class="divider my-4" />
+                    </div>
+                    <div class="col-lg-8 align-self-baseline">
+                        <p class="text-white-75 font-weight-light mb-4">An entry to the CG1 rendering competiton made by Aaron Bies</p>
+                        <a class="btn btn-primary btn-xl js-scroll-trigger" href="#downloads">Find out more</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Downloads -->
+        <section class="page-section bg-primary" id="downloads">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8 text-center">
+                        <h2 class="text-white mt-0">Downloads</h2>
+                        <hr class="divider light my-4" />
+                        <p class="text-white mb-3">You can download the final render in different sizes below!</p>
+                        <a class="btn btn-light btn-xl js-scroll-trigger m-3" href="final.png">4320 x 2160</a>
+                        <a class="btn btn-light btn-xl js-scroll-trigger m-3" href="assets/medium-size.png">2160 x 1080</a>
+                        <a class="btn btn-light btn-xl js-scroll-trigger m-3" href="preview.png">480 x 240</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Implementation-->
+        <section class="page-section" id="implementation">
+            <div class="container text-justify">
+                <h2 class="text-center mt-0">Implementation</h2>
+                <hr class="divider my-4" />
+
+                <h3 class="text-center mt-0">Triangle Ring</h3>
+                <p class="my-3">
+                    This is by far the most prominent light source in the render. The triangle ring is an additional
+                    solid I implemented on top of the regular triangle. It uses barycentric coordinates to compute the
+                    distance between the hit point and the outer edge of the triangle. If that distance is greater
+                    than a given thickness parameter, the intersection is ignored.
+                    <br class="mb-3">
+                    The solid also implements the area and sample functions needed to use it as an area light.
+                    I used two of these triangle rings with opposite orientations stacked on top of each other to
+                    allow the ring to cast light both upwards and downwards. To prevent intersections with the wrong
+                    solid, the triangle ring is completely invisible from one side.
+                    <br class="mb-3">
+                    By far the biggest challenge with the triangle ring was getting the part of the statue, which is
+                    on the same plane as the triangle to converge reasonably well. Because of the steep angle to the
+                    area light, most light samples from this "belt region" are either dark or occluded. Only very few
+                    samples actually contribute to the final color, which leads to extremely slow conversion. To fix
+                    this, the surface normal returned by the sample function is slightly randomly perturbed, which
+                    effectively blurs away the problematic region. To get rid of any remaining artifacts, a simple
+                    star shaped median filter is applied to the image, once the render is complete.
+                </p>
+                <p class="text-black-50">Code path: rt/solids/triring.cpp, main/a_compo.cpp @ LN 198</p>
+
+                <h3 class="text-center mt-5">God Rays</h3>
+                <p class="my-3">
+                    The renderer implements a simplified version of volumetric rendering to give more focus the spot
+                    light in the center of the scene. This was done by implementing a new "Holy Recursive Ray
+                    Tracing Integrator" which extends an integrator from a pervious assignment by an additional
+                    volumetric pass.
+                    <br class="mb-3">
+                    This pass works by intersecting a ray with the scene, then walking along the ray and checking for
+                    visibility with the spotlight in each step. The samples checked along the ray are at equal distance
+                    to each other, but offset by a random amount each time. Averaging over these samples gives
+                    us an approximation of how much light is being scattered towards the camera.
+                    <br class="mb-3">
+                    In order to make the spotlight a little bit more natural, I implemented a new "Area Spotlight",
+                    which randomizes it's position within a rectangular region. This helps to feather out the outer
+                    edge of the cone, in which the spotlight functions.
+                </p>
+                <p class="text-black-50">Code path: rt/integrators/holyrecraytrace.cpp, rt/lights/areaspotlight.cpp</p>
+
+                <h3 class="text-center mt-5">Tesselation</h3>
+                <p class="my-3">
+                    To make use of the "SmoothTriangle" class I implemented for a previous assignment, I added a
+                    "tessel" function, which takes the triangles created by the "loadOBJ" function as input and
+                    generates smooth triangles that represent the same geometry.
+                    <br class="mb-3">
+                    The function first iterates over the list of triangles and collects all vertices in the geometry
+                    as well as the normals of the triangles, which are connected to those vertices. In a second pass,
+                    the flat triangles are swapped out for smooth triangles, if the angle between the vertex normals
+                    is small enough. If two of the vertex normals point too far away from each other, interpolating
+                    between those normals may result in a zero vector. In this case, the triangle is not replaced.
+                </p>
+                <p class="text-black-50">Code path: main/a_compo.cpp @ LN 243</p>
+
+                <h3 class="text-center mt-5">Bloom Pass</h3>
+                <p class="my-3">
+                    The bloom effect is a tool to make the highlights of the scene stand out even more. Something like
+                    this happens with real cameras when parts of an image are overexposed and the brightness bleeds
+                    onto the surrounding pixels. This effect is applied after the ray tracer finished rendering the
+                    image in it's entirety and before color correction is applied. In software this effect can be
+                    implemented efficiently using an iterative algorithm:
+                    <ol>
+                        <li>Make a copy of the image produced by the ray tracer</li>
+                        <li>Lower the blacks to ensure only the highlights of the image contribute to the bloom effect</li>
+                        <li>Downscale the copied image by a factor of 2</li>
+                        <li>Blur the copied image</li>
+                        <li>Add the blurred image back to the original image</li>
+                        <li>Go back to step 3 and repeat a couple of times</li>
+                    </ol>
+                    Since the image we need to blur in each iteration quarters in size every time, this algorithm
+                    is extremely fast, making it suitable even for real-time applications.
+                </p>
+                <p class="text-black-50">Code path: main/a_compo.cpp @ LN 57</p>
+
+                <h3 class="text-center mt-0">Post Processing</h3>
+                <p class="my-3">
+                    The post processing pass is the last alteration of the image before it is written into the final
+                    png file. Its main propose is color correction, but some color grading is also applied. This pass
+                    consists of many small operations which are applied to each pixel in the image. I'm going to
+                    summarize these steps briefly here:
+                    <ul>
+                        <li>First the <b>reinhardt operator</b> is used to map the value of each color from [0, &infin;) down to [0, 1)</li>
+                        <li>Then <b>brightness</b> and <b>saturation</b> are raised back up a little bit</li>
+                        <li>A <b>smoothstep</b> curve is used to add more contrast to the image</li>
+                        <li>Now <b>gamma correction</b> is applied</li>
+                        <li>A bit of <b>film grain</b> is added to reduce color banding</li>
+                    </ul>
+                </p>
+                <p class="text-black-50">Code path: main/a_compo.cpp @ LN 145</p>
+            </div>
+        </section>
+
+        <!-- Gallery-->
+        <div id="gallery">
+            <div class="container-fluid p-0">
+                <div class="row no-gutters">
+                    <div class="col-lg-4 col-sm-6">
+                        <img class="img-fluid" src="assets/gallery/1.png" alt="" />
+                    </div>
+                    <div class="col-lg-4 col-sm-6">
+                        <img class="img-fluid" src="assets/gallery/2.png" alt="" />
+                    </div>
+                    <div class="col-lg-4 col-sm-6">
+                        <img class="img-fluid" src="assets/gallery/3.png" alt="" />
+                    </div>
+                    <div class="col-lg-4 col-sm-6">
+                        <img class="img-fluid" src="assets/gallery/4.png" alt="" />
+                    </div>
+                    <div class="col-lg-4 col-sm-6">
+                        <img class="img-fluid" src="assets/gallery/5.png" alt="" />
+                    </div>
+                    <div class="col-lg-4 col-sm-6">
+                        <img class="img-fluid" src="assets/gallery/6.png" alt="" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inspiration-->
+        <section class="page-section bg-dark text-white" id="inspiration">
+            <div class="container text-justify">
+                <h2 class="text-center mb-4">Inspiration & Credits</h2>
+                <hr class="divider my-4" />
+                <p class="mb-3">
+                    A big part of the inspiration for this entry comes from two very different sources.
+                    I got the idea for the general motive and composition of this piece from the cover art of the
+                    album <a href="https://en.wikipedia.org/wiki/Triangle_(Perfume_album)">Triangle</a> by Perfume.
+                    The lighting was mainly inspired by this scene in <a href="https://www.youtube.com/watch?t=43&v=QhqT0DhV9yE">Dope on Wax</a>,
+                    a 64k PC intro made by Logicoma, which was released at the Revision Demoparty in 2019.
+                    <br class="mb-3">
+                    The statue in the middle of the scene is an open-source model provided by Stanford University for
+                    students to use for free. The model is called "Lucy" and can be found on this GitHub repository labeled
+                    <a href="https://github.com/alecjacobson/common-3d-test-models">"common-3d-test-models"</a>. All
+                    other 3D geometry is generated procedurally.
+                    The picture of Bernie Sanders sitting in the cold has been taken from <a href="https://p.dw.com/p/3oMNU">this article</a>
+                    which credits "Brendan Smialowski/AFP" for the photo. In case you don't know what I'm talking about,
+                    you might want to take another look at my render.
+                    <br class="mb-3">
+                    This project has been implemented in its entirety by Aaron Bies, the only remaining member of group1Y.
+                </p>
+            </div>
+        </section>
+
+        <!-- Footer-->
+        <footer class="bg-light py-5">
+            <div class="container"><div class="small text-center text-muted">
+                Copyright © 2020 - Start Bootstrap <br class="mb-2">
+                <a href="https://startbootstrap.com/theme/creative/">You can download the template here!</a>
+            </div></div>
+        </footer>
+
+        <!-- Bootstrap core JS-->
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"></script>
+
+        <!-- Core theme JS-->
+        <script src="js/scripts.js"></script>
+    </body>
+</html>

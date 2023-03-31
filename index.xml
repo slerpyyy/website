@@ -24,6 +24,7 @@ With this entry, I tried to recreate the look of a point cloud visualization, wh
 To create a sense of depth, the points are colored according to how close to the scanner they are, and they are rendered with lots of depth of field.</description></item><item><title>Rise Again</title><link>https://slerpy.xyz/posts/rise-again/</link><pubDate>Thu, 04 Feb 2021 00:00:00 +0000</pubDate><guid>https://slerpy.xyz/posts/rise-again/</guid><description>my submission to the CG1 Rendering Competition at Saarland University
 The rules of the competition required me to hand in a write-up with my submission, so here you go:
 https://graphics.cg.uni-saarland.de/courses/cg1-2020/RC/Bies/
+(In case the above link does not work, here is a backup link)
 My entry ended up winning (joined) 1st place and they even gave me a prize after the final exam.</description></item><item><title>Convergence</title><link>https://slerpy.xyz/posts/convergence/</link><pubDate>Sun, 21 Jun 2020 00:00:00 +0000</pubDate><guid>https://slerpy.xyz/posts/convergence/</guid><description>a 4k exe-gfx entry released at NOVA 2020
 [pouët]
 This was my first proper exe-gfx entry. Up until this point, all of my entries have been real-time, meaning I always had to be careful with using system resources to ensure the entry runs at 60 fps in 1080p. So I decided I wanted to do something with tons of lines, rendered across multiple frames because I could.
