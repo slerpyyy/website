@@ -42,4 +42,5 @@ Yeah, so that's how that happened.
 The Entry This is the 4k exe-gfx entry sler.py by slerpy, which renders a picture of slerpy.</description></item><item><title>Think Outside the Box</title><link>https://slerpy.xyz/posts/think-outside-the-box/</link><pubDate>Fri, 28 Dec 2018 00:00:00 +0000</pubDate><guid>https://slerpy.xyz/posts/think-outside-the-box/</guid><description>a 4k PC intro released at Under Construction 2018
 [pouët]
 In this intro, I wanted to play around with real-time graphics using baked, path-traced lighting. I am aware that baked lighting is quite popular in oldschool demos, but as far as I know, this is the first 4k PC intro to implement it.
-The Lightmap The lighting information for all four rooms is stored in one flat texture, that is rendered at the start of the intro.</description></item></channel></rss>
+The Lightmap The lighting information for all four rooms is stored in one flat texture, that is rendered at the start of the intro.</description></item><item><title>Contact</title><link>https://slerpy.xyz/contact/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://slerpy.xyz/contact/</guid><description>If you want to reach out to me, you can do so via the following methods:
+E-Mail: contact@{this domain} Discord: d9d0 Mastodon: @slerpy@icosahedron.website</description></item></channel></rss>
