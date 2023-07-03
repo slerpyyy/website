@@ -43,4 +43,4 @@ The Entry This is the 4k exe-gfx entry sler.py by slerpy, which renders a pictur
 [pouët]
 In this intro, I wanted to play around with real-time graphics using baked, path-traced lighting. I am aware that baked lighting is quite popular in oldschool demos, but as far as I know, this is the first 4k PC intro to implement it.
 The Lightmap The lighting information for all four rooms is stored in one flat texture, that is rendered at the start of the intro.</description></item><item><title>Contact</title><link>https://slerpy.xyz/contact/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://slerpy.xyz/contact/</guid><description>If you want to reach out to me, you can do so via the following methods:
-E-Mail: contact@{this domain} Discord: d9d0 Mastodon: @slerpy@icosahedron.website</description></item></channel></rss>
+E-Mail: contact@{this domain} Discord: slerpy_ Mastodon: @slerpy@icosahedron.website</description></item></channel></rss>
